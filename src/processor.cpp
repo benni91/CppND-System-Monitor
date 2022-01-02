@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-// TODO: Return the aggregate CPU utilization
+// Return the aggregate CPU utilization
 float Processor::Utilization() { 
     auto input = LinuxParser::CpuUtilization();
     int nonIdle = stoi(input[1])+ stoi(input[2])+stoi(input[3])+stoi(input[6])+stoi(input[7]) +stoi(input[8]);
