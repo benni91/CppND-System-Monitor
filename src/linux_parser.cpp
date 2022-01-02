@@ -71,27 +71,9 @@ vector<int> LinuxParser::Pids() {
 
 // Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() { 
-  string line;
-  string key;
-  float value, memTotal, memFree;
-  std::ifstream filestream(kProcDirectory + kMeminfoFilename);
-  if (filestream.is_open()) {
-    while (std::getline(filestream, line)) {
-      std::replace(line.begin(), line.end(), ':', ' ');
-      std::istringstream linestream(line);
-      while (linestream >> key >> value) {
-        if (key == "MemTotal") {
-          memTotal = value;
-          //std::cout << value << "\n";
-        }
-        if (key == "MemAvailable") {
-          memFree = value;
-          //std::cout << value << "\n";
-        }
-      }
-    }
-  }
-  return (1 - (memFree / memTotal));
+  float Total = findValueByKey<float>(filterMemTotalString, kMeminfoFilename);// "/proc/memInfo"
+  float Free = findValueByKey<float>(filterMemFreeString, kMeminfoFilename);
+  return (Total - Free) / Total;
   }
 
 // Read and return the system uptime
@@ -128,98 +110,31 @@ vector<string> LinuxParser::CpuUtilization() {
 
 // Read and return the total number of processes
 int LinuxParser::TotalProcesses() { 
-  string line;
-  string key;
-  int value;
-  std::ifstream filestream(kProcDirectory + kStatFilename);
-  if (filestream.is_open()) {
-    while (std::getline(filestream, line)) {
-      std::istringstream linestream(line);
-      while (linestream >> key >> value) {
-        if (key == "processes") {
-          //std::cout << value;
+  float value = findValueByKey<float>(filterProcesses, kStatFilename);// "/proc/memInfo"
           return value;
-        }
-      }
-    }
-  }
-  return value;
-  //return 0; 
   }
 
 // Read and return the number of running processes
 int LinuxParser::RunningProcesses() { 
-  string line;
-  string key;
-  int value;
-  std::ifstream filestream(kProcDirectory + kStatFilename);
-  if (filestream.is_open()) {
-    while (std::getline(filestream, line)) {
-      std::istringstream linestream(line);
-      while (linestream >> key >> value) {
-        if (key == "procs_running") {
-          //std::cout << value;
+  float value = findValueByKey<float>(filterRunningProcesses, kStatFilename);// "/proc/memInfo"
           return value;
-        }
-      }
-    }
-  }
-  return value;
-  //return 0; 
   }
 
 // Read and return the command associated with a process
 string LinuxParser::Command(int pid) { 
-  string line;
-  //string key;
-  //int value;
-  std::ifstream filestream(kProcDirectory + to_string(pid) + kCmdlineFilename);
-  if (filestream.is_open()) {
-    std::getline(filestream, line);
-  }
-  return line;//string(); 
+  return std::string(getValueOfFile<std::string>(std::to_string(pid) + kCmdlineFilename));
   }
 
 // Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
-  string line;
-  string key;
-  string value;
-  std::ifstream filestream(kProcDirectory + to_string(pid) + kStatusFilename);
-   if (filestream.is_open()) {
-    while (std::getline(filestream, line)) {
-      std::replace(line.begin(), line.end(), ':', ' ');
-      std::istringstream linestream(line);
-      while (linestream >> key >> value) {
-        if (key == "VmSize") {
-          return to_string(std::stoi(value)/1024);
-          //std::cout << value << "\n";
-        }
-      }
-    }
-  }
-  return string(); 
+  string value = findValueByKey<string>(filterProcMem, to_string(pid)+kStatusFilename);// "/proc/[pid]/status"
+  return value.substr(0,size(value)-3);
   }
 
 // Read and return the user ID associated with a process
 string LinuxParser::Uid(int pid) {
-  string line;
-  string key;
-  string value;
-  std::ifstream filestream(kProcDirectory + to_string(pid) + kStatusFilename);
-   if (filestream.is_open()) {
-    while (std::getline(filestream, line)) {
-      std::replace(line.begin(), line.end(), ':', ' ');
-      std::istringstream linestream(line);
-      while (linestream >> key >> value) {
-        if (key == "Uid") {
+  string value = findValueByKey<string>(filterUID, to_string(pid)+kStatusFilename);// "/proc/[pid]/status"
           return value;
-          //std::cout << value << "\n";
-        }
-      }
-    }
-  }
-   return string(); 
    }
 
 // Read and return the user associated with a process

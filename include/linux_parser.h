@@ -5,6 +5,8 @@
 #include <regex>
 #include <string>
 
+using std::string;
+
 namespace LinuxParser {
 // Paths
 const std::string kProcDirectory{"/proc/"};
@@ -17,6 +19,14 @@ const std::string kMeminfoFilename{"/meminfo"};
 const std::string kVersionFilename{"/version"};
 const std::string kOSPath{"/etc/os-release"};
 const std::string kPasswordPath{"/etc/passwd"};
+
+const string filterProcesses("processes");
+const string filterRunningProcesses("procs_running");
+const string filterMemTotalString("MemTotal:");
+const string filterMemFreeString("MemFree:");
+const string filterCpu("cpu");
+const string filterUID("Uid:");
+const string filterProcMem("VmRSS:"); // The string can be VmSize As well
 
 // System
 float MemoryUtilization();
@@ -49,6 +59,39 @@ std::string Uid(int pid);
 std::string User(int pid);
 long int UpTime(int pid);
 float CpuUtilization(int pid);
+
+template <typename T>
+T findValueByKey(std::string const &keyFilter, std::string const &filename) {
+  std::string line, key;
+  T value;
+
+  std::ifstream stream(kProcDirectory + filename);
+  if (stream.is_open()) {
+    while (std::getline(stream, line)) {
+      std::istringstream linestream(line);
+      while (linestream >> key >> value) {
+        if (key == keyFilter) {
+          return value;
+        }
+      }
+    }
+  }
+  return value;
+};
+
+template <typename T>
+T getValueOfFile(std::string const &filename) {
+  std::string line;
+  T value;
+
+  std::ifstream stream(kProcDirectory + filename);
+  if (stream.is_open()) {
+    std::getline(stream, line);
+    std::istringstream linestream(line);
+    linestream >> value;
+  }
+  return value;
+};
 };  // namespace LinuxParser
 
 #endif
