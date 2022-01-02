@@ -174,10 +174,8 @@ long LinuxParser::UpTime(int pid) {
       std::istringstream linestream(line);
       int i = 0;
       while (linestream >> value) {
-        if (i == 23) {
-          //std::cout << value << "\n";
-          return std::stol(value) / sysconf(_SC_CLK_TCK);
-          
+        if (i == 21) {
+          return LinuxParser::UpTime() - std::stol(value) / sysconf(_SC_CLK_TCK);          
         }
         i++;
       }
