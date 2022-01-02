@@ -61,8 +61,7 @@ vector<int> LinuxParser::Pids() {
       string filename(file->d_name);
       if (std::all_of(filename.begin(), filename.end(), isdigit)) {
         int pid = stoi(filename);
-        pids.push_back(pid);
-        //std::cout << pid << std::endl;
+        pids.emplace_back(pid);
       }
     }
   }
@@ -118,13 +117,9 @@ vector<string> LinuxParser::CpuUtilization() {
   std::ifstream filestream(kProcDirectory + kStatFilename);
   if (filestream.is_open()) {
     std::getline(filestream, line);
-      //std::replace(line.begin(), line.end(), ':', ' ');
       std::istringstream linestream(line);
-      while (linestream >> value) {//CPUStates::kUser_ >> CPUStates::kNice_ >> CPUStates::kSystem_ >> CPUStates::kIdle_ >> CPUStates::kIOwait_ >> CPUStates::kIOwait_ >> CPUStates::kIRQ_>> CPUStates::kSoftIRQ_ >> CPUStates::kSteal_ >> CPUStates::kGuest_ >> CPUStates::kGuestNice_) {
-        output.push_back(value);
-        //if (key == "cpu") {
-          //std::cout << value << "\n";
-        //}
+      while (linestream >> value) {
+        output.emplace_back(value);
       }
     
   }
@@ -242,7 +237,6 @@ string LinuxParser::User(int pid) {
       std::istringstream linestream(line);
       while (linestream >> name >> pwd >> value) {
         if (value == uid) {
-          //std::cout << name << "\n";
           return name;
           
         }
