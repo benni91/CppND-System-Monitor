@@ -200,11 +200,11 @@ long LinuxParser::UpTime(int pid) {
     }
     utime = stol(data[13]);
     stime = stol(data[14]);
-    //cutime = stol(data[15]);
-    //cstime = stol(data[16]);
+    cutime = stol(data[15]);
+    cstime = stol(data[16]);
     starttime = stol(data[21]);
     total_time = utime + stime;
-    //total_time = total_time + cutime + cstime;
+    total_time += cutime + cstime;
     float seconds = (float) (systemUpTime - (starttime / sysconf(_SC_CLK_TCK)));
     float cpu_usage = ((total_time / sysconf(_SC_CLK_TCK))) / seconds;
     return cpu_usage;
