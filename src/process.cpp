@@ -22,6 +22,10 @@ float Process::CpuUtilization() {
 
 // Return the command that generated this process
 string Process::Command() { 
+    string command = LinuxParser::Command(pid);
+    command.resize(40) ;
+    return command;
+    }
 
 // Return this process's memory utilization
 string Process::Ram() { return LinuxParser::Ram(pid); }
